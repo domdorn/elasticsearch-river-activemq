@@ -42,9 +42,8 @@ import java.util.Map;
 /**
  * &quot;Native&quot; ActiveMQ River for ElasticSearch.
  *
- * @Author Dominik Dorn || http://dominikdorn.com
- * based on the work of the ElasticSearch RabbitMQ River team
- */
+ * @author Dominik Dorn // http://dominikdorn.com
+  */
 public class ActiveMQRiver extends AbstractRiverComponent implements River {
 
     public final String defaultActiveMQUser = ActiveMQConnection.DEFAULT_USER;

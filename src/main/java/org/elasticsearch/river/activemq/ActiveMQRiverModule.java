@@ -23,7 +23,7 @@ import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.river.River;
 
 /**
- *
+ * @author Dominik Dorn // http://dominikdorn.com
  */
 public class ActiveMQRiverModule extends AbstractModule {
 

@@ -1,5 +1,5 @@
 /*
- * Licensed to ElasticSearch and Shay Banon under one
+ * Licensed to ElasticSearch under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
  * regarding copyright ownership. ElasticSearch licenses this
@@ -38,7 +38,7 @@ import java.io.IOException;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 /**
- *
+ * @author Dominik Dorn // http://dominikdorn.com
  */
 public class ActiveMQRiverTest {
 
@@ -109,7 +109,7 @@ public class ActiveMQRiverTest {
         try {
             Connection conn = factory.createConnection();
             Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Queue queue = session.createQueue(ActiveMQRiver4.defaultActiveMQSourceName);
+            Queue queue = session.createQueue(ActiveMQRiver.defaultActiveMQSourceName);
             MessageProducer producer = session.createProducer(queue);
             producer.send(session.createTextMessage(message));
 

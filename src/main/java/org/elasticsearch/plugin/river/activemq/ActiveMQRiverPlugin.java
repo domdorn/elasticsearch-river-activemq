@@ -25,7 +25,7 @@ import org.elasticsearch.river.RiversModule;
 import org.elasticsearch.river.activemq.ActiveMQRiverModule;
 
 /**
- *
+ * @author Dominik Dorn // http://dominikdorn.com
  */
 public class ActiveMQRiverPlugin extends AbstractPlugin {
 
