@@ -50,13 +50,15 @@ To get the status of the river infrastructure of elasticsearch itself, you can d
   curl -XGET 'localhost:9200/_river/_status'
 ```
 
+This ElasticSearch River for the ActiveMQ Message Queue is based on the excellent work
+of the RabbitMQ ElasticSearch River. 
 
 License
 -------
 
     This software is licensed under the Apache 2 license, quoted below.
 
-    Copyright 2009-2012 Shay Banon and ElasticSearch <http://www.elasticsearch.org>
+    Copyright 2012 ElasticSearch <http://www.elasticsearch.org>
 
     Licensed under the Apache License, Version 2.0 (the "License"); you may not
     use this file except in compliance with the License. You may obtain a copy of
