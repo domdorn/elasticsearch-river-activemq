@@ -82,7 +82,7 @@ public class ActiveMQRiver extends AbstractRiverComponent implements River {
     public ActiveMQRiver(RiverName riverName, RiverSettings settings, Client client) {
         super(riverName, settings);
         this.client = client;
-        this.defaultActiveMQConsumerName = "activemq_elasticsearch_river_" + riverName();
+        this.defaultActiveMQConsumerName = "activemq_elasticsearch_river_" + riverName().name();
 
         if (settings.settings().containsKey("activemq")) {
             Map<String, Object> activeMQSettings = (Map<String, Object>) settings.settings().get("activemq");
