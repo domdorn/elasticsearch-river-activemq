@@ -26,7 +26,7 @@ Creating the ActiveMQ river is as simple as (all configuration parameters are pr
           "sourceType" : "queue",
           "sourceName" : "elasticsearch",
           "consumerName" : "activemq_elasticsearch_river_" + rivername,
-          "durable" : false
+          "durable" : false,
           "filter" : ""
       },
       "index" : {
