@@ -134,7 +134,7 @@ public class ActiveMQRiver extends AbstractRiverComponent implements River {
                 activeMQSourceType,
                 activeMQSourceName
         );
-        connectionFactory = new ActiveMQConnectionFactory(activeMQUser, activeMQPassword, defaultActiveMQBrokerUrl);
+        connectionFactory = new ActiveMQConnectionFactory(activeMQUser, activeMQPassword, activeMQBrokerUrl);
 
         thread = EsExecutors.daemonThreadFactory(settings.globalSettings(), "activemq_river").newThread(new Consumer());
         thread.start();
