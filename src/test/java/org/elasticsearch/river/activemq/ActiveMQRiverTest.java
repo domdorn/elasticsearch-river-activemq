@@ -48,6 +48,12 @@ public class ActiveMQRiverTest {
             "{ \"create\" : { \"_index\" : \"test\", \"_type\" : \"type1\", \"_id\" : \"1\" }\n" +
             "{ \"type1\" : { \"field1\" : \"value1\" } }";
 
+    final String message2 = "{ \"index\" : { \"_index\" : \"test2\", \"_type\" : \"type2\", \"_id\" : \"1\" }\n" +
+            "{ \"type2\" : { \"field2\" : \"value2\" } }\n" +
+            "{ \"delete\" : { \"_index\" : \"test2\", \"_type\" : \"type2\", \"_id\" : \"2\" } }\n" +
+            "{ \"create\" : { \"_index\" : \"test2\", \"_type\" : \"type2\", \"_id\" : \"1\" }\n" +
+            "{ \"type2\" : { \"field2\" : \"value2\" } }";
+
     BrokerService broker;
     Client client;
 
@@ -74,10 +80,19 @@ public class ActiveMQRiverTest {
         broker.getBroker().stop();
     }
 
-    private void startElasticSearchInstance() throws IOException {
+    private void startElasticSearchDefaultInstance() throws IOException {
         Node node = NodeBuilder.nodeBuilder().settings(ImmutableSettings.settingsBuilder().put("gateway.type", "none")).node();
         client = node.client();
         client.prepareIndex("_river", "test1", "_meta").setSource(jsonBuilder().startObject().field("type", "activemq").endObject()).execute().actionGet();
+    }
+
+    private void startElasticSearchSourceNameInstance(String sourceName) throws IOException {
+        Node node = NodeBuilder.nodeBuilder().settings(ImmutableSettings.settingsBuilder().put("gateway.type", "none")).node();
+        client = node.client();
+        client.prepareIndex("_river", "test1", "_meta").setSource(jsonBuilder().startObject()
+                .field("type", "activemq")
+                .field("sourceName", sourceName)
+                .endObject()).execute().actionGet();
     }
 
     private void stopElasticSearchInstance() {
@@ -91,7 +106,7 @@ public class ActiveMQRiverTest {
     public void testSimpleScenario() throws Exception {
 
         startActiveMQBroker();
-        startElasticSearchInstance();
+        startElasticSearchDefaultInstance();
 
 
         // assure that the index is not yet there
@@ -104,20 +119,8 @@ public class ActiveMQRiverTest {
         }
 
 
-        // TODO connect to the ActiveMQ Broker and publish a message into the default queue
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
-        try {
-            Connection conn = factory.createConnection();
-            Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Queue queue = session.createQueue(ActiveMQRiver.defaultActiveMQSourceName);
-            MessageProducer producer = session.createProducer(queue);
-            producer.send(session.createTextMessage(message));
-
-            session.close();
-            conn.close();
-        } catch (JMSException e) {
-            Assert.fail("JMS Exception");
-        }
+        // connect to the ActiveMQ Broker and publish a message into the default queue
+        postMessageToQueue(ActiveMQRiver.defaultActiveMQSourceName, message);
 
 
         Thread.sleep(3000l);
@@ -127,20 +130,70 @@ public class ActiveMQRiverTest {
             Object o = future.actionGet();
             GetResponse resp = (GetResponse) o;
             Assert.assertEquals("{ \"type1\" : { \"field1\" : \"value1\" } }", resp.getSourceAsString());
-//            System.out.println("resp.sourceAsString() = " + resp.sourceAsString());
-//            System.out.println("o = " + o);
         }
 
 
-//        System.out.println("stopping elastic search");
         stopElasticSearchInstance();
-//        Thread.sleep(3000l);
         stopActiveMQBroker();
 
         Thread.sleep(3000l);
-//        stomp_client.send("/elasticsearch", message);
 
-
-//        Thread.sleep(100000);
     }
+
+    @Test
+    public void testRiverWithNonDefaultName() throws Exception {
+
+        String riverCustomSourceName = "nonDefaultNameQueue";
+
+        startActiveMQBroker();
+        startElasticSearchSourceNameInstance(riverCustomSourceName);
+
+
+        // assure that the index is not yet there
+        try {
+            ListenableActionFuture future = client.prepareGet("test2", "type2", "2").execute();
+            future.actionGet();
+            Assert.fail();
+        } catch (IndexMissingException idxExcp) {
+
+        }
+
+        postMessageToQueue(riverCustomSourceName, message2);
+
+
+        Thread.sleep(3000l);
+
+        {
+            ListenableActionFuture future = client.prepareGet("test2", "type2", "2").execute();
+            Object o = future.actionGet();
+            GetResponse resp = (GetResponse) o;
+            Assert.assertEquals("{ \"type2\" : { \"field2\" : \"value2\" } }", resp.getSourceAsString());
+        }
+
+
+        stopElasticSearchInstance();
+        stopActiveMQBroker();
+
+        Thread.sleep(3000l);
+
+    }
+
+    private void postMessageToQueue(final String sourceName, final String msgText) {
+        // connect to the ActiveMQ Broker and publish a message into the default queue
+        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+        try {
+            Connection conn = factory.createConnection();
+            Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Queue queue = session.createQueue(sourceName);
+            MessageProducer producer = session.createProducer(queue);
+            producer.send(session.createTextMessage(msgText));
+
+            session.close();
+            conn.close();
+        } catch (JMSException e) {
+            Assert.fail("JMS Exception");
+        }
+    }
+
+
 }
