@@ -6,7 +6,7 @@
     <groupId>org.elasticsearch</groupId>
     <artifactId>elasticsearch-river-activemq</artifactId>
     <name>elasticsearch-river-activemq</name>
-    <version>1.0</version>
+    <version>1.2</version>
     <packaging>jar</packaging>
     <description>ActiveMQ River for ElasticSearch</description>
     <inceptionYear>2012</inceptionYear>
