@@ -229,7 +229,7 @@ public class ActiveMQRiver extends AbstractRiverComponent implements River {
                     Message message;
                     try {
                         message = consumer.receive();
-                        logger.info("got a message [{}]", message);
+                        logger.debug("got a message [{}]", message);
                     } catch (Exception e) {
                         if (!closed) {
                             logger.error("failed to get next message, reconnecting...", e);
@@ -237,9 +237,9 @@ public class ActiveMQRiver extends AbstractRiverComponent implements River {
                         cleanup(0, "failed to get message");
                         break;
                     }
-                    logger.info("check if message is of type textmessage");
+                    logger.debug("check if message is of type textmessage");
                     if (message != null && message instanceof TextMessage) {
-                        logger.info("it is of type textmessage");
+                        logger.debug("it is of type textmessage");
                         final List<String> deliveryTags = Lists.newArrayList();
 
                         byte[] msgContent;
@@ -247,7 +247,7 @@ public class ActiveMQRiver extends AbstractRiverComponent implements River {
                             TextMessage txtMessage = (TextMessage) message;
 
                             msgContent = txtMessage.getText().getBytes();
-                            logger.info("message was [{}]", txtMessage.getText());
+                            logger.debug("message was [{}]", txtMessage.getText());
 
                         } catch (Exception e) {
 //                                logger.warn("failed to parse request for delivery tag [{}], ack'ing...", e, task.getJMSCorrelationID() );
@@ -259,32 +259,32 @@ public class ActiveMQRiver extends AbstractRiverComponent implements River {
                             continue;
                         }
 
-                        logger.info("preparing bulk");
+                        logger.debug("preparing bulk");
                         BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
-                        logger.info("bulk prepared.. ");
+                        logger.debug("bulk prepared.. ");
 
                         try {
-                            logger.info("adding message to bulkRequestBuilder");
+                            logger.debug("adding message to bulkRequestBuilder");
                             bulkRequestBuilder.add(msgContent, 0, msgContent.length, false);
-                            logger.info("added message to bulkRequestBuilder");
+                            logger.debug("added message to bulkRequestBuilder");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
 
-                        logger.info("adding deliveryTags");
+                        logger.debug("adding deliveryTags");
                         try {
                             deliveryTags.add(message.getJMSMessageID());
                         } catch (JMSException e) {
                             logger.warn("failed to get JMS Message ID", e);
                         }
 
-                        logger.info("checking if numberOfActions [{}] < bulkSize [{}]", bulkRequestBuilder.numberOfActions(), bulkSize);
+                        logger.debug("checking if numberOfActions [{}] < bulkSize [{}]", bulkRequestBuilder.numberOfActions(), bulkSize);
                         if (bulkRequestBuilder.numberOfActions() < bulkSize) {
-                            logger.info("it is..");
+                            logger.debug("it is..");
                             // try and spin some more of those without timeout, so we have a bigger bulk (bounded by the bulk size)
                             try {
 //                                    while ((message = consumer.receive(bulkTimeout.millis())) != null) {
-                                logger.info("trying to get more messages, waiting 2000l ");
+                                logger.debug("trying to get more messages, waiting 2000l ");
                                 while ((message = consumer.receive(bulkTimeout.millis())) != null) {
                                     try {
                                         byte[] content = ((TextMessage) message).getText().getBytes();
@@ -307,7 +307,7 @@ public class ActiveMQRiver extends AbstractRiverComponent implements River {
 //                                        break;
 //                                    }
                             } catch (JMSException e) {
-                                logger.info("catched an exception [{}]", e);
+                                logger.warn("caught an exception [{}]", e);
                                 e.printStackTrace();
                             }
                         }
@@ -316,9 +316,9 @@ public class ActiveMQRiver extends AbstractRiverComponent implements River {
                             logger.trace("executing bulk with [{}] actions", bulkRequestBuilder.numberOfActions());
                         }
 
-                        logger.info("if is ordered... ");
+                        logger.debug("if is ordered... ");
                         if (ordered) {
-                            logger.info("it is ordered.. ");
+                            logger.debug("it is ordered.. ");
                             try {
                                 BulkResponse response = bulkRequestBuilder.execute().actionGet();
                                 if (response.hasFailures()) {
@@ -359,7 +359,7 @@ public class ActiveMQRiver extends AbstractRiverComponent implements River {
                             });
                         }
                     } else {
-                        logger.warn("it is not ... :(");
+                        logger.warn("Validation failed: message is not of type TextMessage");
                     }
                 }
             }
