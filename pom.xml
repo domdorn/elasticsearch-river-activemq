@@ -30,7 +30,7 @@
     </parent>
 
     <properties>
-        <elasticsearch.version>0.19.8</elasticsearch.version>
+        <elasticsearch.version>6.8.15</elasticsearch.version>
         <activemq.version>5.2.0</activemq.version>
         <log4j.version>1.2.16</log4j.version>
         <junit.version>4.8.2</junit.version>
